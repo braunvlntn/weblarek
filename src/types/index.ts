@@ -26,3 +26,8 @@ export interface IBuyer {
   phone: string;
   address: string;
 }
+
+export type FetchProductsResponse = {
+  total: number;
+  items: IProduct[];
+};
