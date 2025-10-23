@@ -31,3 +31,8 @@ export type FetchProductsResponse = {
   total: number;
   items: IProduct[];
 };
+
+export type PostOrderParams = IBuyer & {
+  total: number;
+  items: IProduct["id"][];
+};
