@@ -184,3 +184,14 @@ Presenter - презентер содержит основную логику п
 `getBuyerData(): IBuyer` - возвращает всю информацию и пользователе;
 `clearBuyerData(): void` - очистка данных покупателя;
 `validateBuyerData(): Partial<Record<keyof IBuyer, string>>` - возвращает объект, содержащий некорректно заполненные поля с информацией об ошибке.
+
+### Слой коммуникации
+
+#### Класс DataFetcher
+
+Конструктор:
+`constructor(api: IApi)` - в конструктор передается объект с методами для получения и отправки данных.
+
+Методы класса:
+`fetchProducts(): Promise<IProduct[]>` - получает список товаров;
+`postOrder(buyer: IBuyer, total: number, products: IProduct["id"][]): Promise<void>` - отправляет данные для оформления заказа.
