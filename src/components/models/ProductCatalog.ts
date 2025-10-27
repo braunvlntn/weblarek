@@ -6,10 +6,6 @@ export class ProductCatalog {
   products: IProduct[] = [];
   selectedProduct: TSelectedProduct = null;
 
-  constructor(products: IProduct[]) {
-    this.setProducts(products);
-  }
-
   getProducts() {
     return this.products;
   }
