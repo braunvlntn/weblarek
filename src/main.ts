@@ -8,6 +8,8 @@ const dataFetcher = new DataFetcher(new Api(API_URL));
 
 const fetchedProducts = await dataFetcher.fetchProducts();
 
-const productCatalog = new ProductCatalog(fetchedProducts.items);
+const productCatalog = new ProductCatalog();
+
+productCatalog.setProducts(fetchedProducts.items);
 
 console.log(productCatalog.getProducts());
