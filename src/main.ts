@@ -12,4 +12,13 @@ const productCatalog = new ProductCatalog();
 
 productCatalog.setProducts(fetchedProducts.items);
 
-console.log(productCatalog.getProducts());
+console.log("Товары", productCatalog.getProducts());
+
+console.log(
+  "Получение товаров по id",
+  productCatalog.getProductById(fetchedProducts.items[1].id)
+);
+
+productCatalog.setSelectedProduct(fetchedProducts.items[1]);
+
+console.log("Выбранный товар", productCatalog.getSelectedProduct());
