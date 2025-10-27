@@ -27,12 +27,12 @@ export interface IBuyer {
   address: string;
 }
 
-export type FetchProductsResponse = {
+export interface FetchProductsResponse {
   total: number;
   items: IProduct[];
-};
+}
 
-export type PostOrderParams = IBuyer & {
+export interface IOrderPayload extends IBuyer {
   total: number;
   items: IProduct["id"][];
-};
+}
