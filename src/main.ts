@@ -4,6 +4,7 @@ import { DataFetcher } from "./components/communication/DataFetcher.ts";
 import { Api } from "./components/base/Api.ts";
 import { API_URL } from "./utils/constants.ts";
 import { Cart } from "./components/models/Cart.ts";
+import { Buyer } from "./components/models/Buyer.ts";
 
 const dataFetcher = new DataFetcher(new Api(API_URL));
 
@@ -58,3 +59,43 @@ console.log(
 );
 console.log("Стоимость всех товаров", cart.getAllProductsCost());
 console.log("Количество товаров", cart.getAllProductsNumber());
+
+const buyer = new Buyer();
+
+console.log("Валидация (все поля пустые)", buyer.validateBuyersData());
+
+buyer.setAddress("Не дом и не улица, Советский Союз");
+
+console.log("Валидация (указан адрес)", buyer.validateBuyersData());
+
+buyer.setPhone("8-800-555-35-35");
+
+console.log("Валидация (указан телефон)", buyer.validateBuyersData());
+
+buyer.setPayment("card");
+
+console.log(
+  "Валидация (указан указан способ оплаты)",
+  buyer.validateBuyersData()
+);
+
+buyer.setEmail("top_frontend@yandex.ru");
+
+console.log(
+  "Валидация (указан адрес электронной почты)",
+  buyer.validateBuyersData()
+);
+
+console.log("Электронная почта", buyer.getEmail());
+console.log("Адрес", buyer.getAddress());
+console.log("Способ оплаты", buyer.getPayment());
+console.log("Номер телефона", buyer.getPhone());
+
+console.log("Очистка данных покупателя");
+buyer.clearBuyersData();
+
+console.log("Электронная почта", buyer.getEmail());
+console.log("Адрес", buyer.getAddress());
+console.log("Способ оплаты", buyer.getPayment());
+console.log("Номер телефона", buyer.getPhone());
+console.log("Валидация после очистки", buyer.validateBuyersData());
