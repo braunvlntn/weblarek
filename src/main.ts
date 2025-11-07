@@ -6,7 +6,11 @@ import { ProductCatalog } from "./components/models/ProductCatalog";
 import { DataFetcher } from "./components/communication/DataFetcher";
 import { ProductCardCatalogView } from "./components/views/ProductCardCatalogView.ts";
 import { ProductCatalogView } from "./components/views/ProductCatalogView";
-import { cloneTemplate } from "./utils/utils";
+import { cloneTemplate, ensureElement } from "./utils/utils";
+import { IProduct } from "./types";
+import { Modal } from "./components/views/Modal.ts";
+import { SelectedProductCardView } from "./components/views/SelectedProductCardView.ts";
+import { Cart } from "./components/models/Cart.ts";
 
 // Инициализация EventEmitter для управления событиями
 const events = new EventEmitter();
@@ -17,9 +21,12 @@ const dataFetcher = new DataFetcher(api);
 
 // Инициализация моделей
 const productCatalog = new ProductCatalog();
+const cart = new Cart();
 
 // Инициализация представлений
 const catalogView = new ProductCatalogView(document.body);
+
+const modal = new Modal(ensureElement<HTMLElement>("#modal-container"));
 
 // Загрузка товаров при инициализации
 dataFetcher
@@ -40,7 +47,10 @@ events.on(Events.CATALOG_CHANGE, () => {
     const cardElement = cloneTemplate<HTMLElement>("#card-catalog");
 
     const card = new ProductCardCatalogView(cardElement, {
-      onClick: () => {},
+      onClick: () => {
+        console.log(product.id);
+        events.emit(Events.PRODUCT_SELECT, product);
+      },
     });
 
     return card.render({
@@ -53,4 +63,41 @@ events.on(Events.CATALOG_CHANGE, () => {
   });
 
   catalogView.render({ items: productCards });
+});
+
+// Обработчик выбора товара для просмотра
+events.on(Events.PRODUCT_SELECT, (product: IProduct) => {
+  productCatalog.setSelectedProduct(product);
+
+  const cardElement = cloneTemplate<HTMLElement>("#card-preview");
+
+  const previewCard = new SelectedProductCardView(cardElement, {
+    onClick: () => {
+      if (cart.checkProductExistence(product.id)) {
+        cart.removeProduct(product.id);
+        events.emit(Events.PRODUCT_SELECT, product);
+
+        return;
+      }
+
+      cart.addProduct(product);
+      events.emit(Events.PRODUCT_SELECT, product);
+    },
+  });
+
+  modal.render({
+    content: previewCard.render({
+      id: product.id,
+      title: product.title,
+      image: CDN_URL + product.image,
+      category: product.category,
+      price: product.price,
+      description: product.description,
+      buttonText: cart.checkProductExistence(product.id)
+        ? "Удалить из корзины"
+        : "Купить",
+    }),
+  });
+
+  modal.open();
 });
