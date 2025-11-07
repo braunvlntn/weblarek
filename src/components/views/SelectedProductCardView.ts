@@ -41,6 +41,12 @@ export class SelectedProductCardView extends ProductCardBaseView {
     this._button.textContent = value;
   }
 
+  set price(value: number | null) {
+    super.price = value;
+
+    this._button.disabled = value === null;
+  }
+
   render(data?: Partial<IProduct & { buttonText: string }>): HTMLElement {
     super.render(data);
     return this.container;

@@ -21,4 +21,6 @@ export const settings = {};
 export enum Events {
   CATALOG_CHANGE = "catalog:change",
   PRODUCT_SELECT = "product:select",
+  BASKET_CHANGE = "basket:change",
+  BASKET_OPEN = "basket:open",
 }

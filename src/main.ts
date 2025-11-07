@@ -11,6 +11,9 @@ import { IProduct } from "./types";
 import { Modal } from "./components/views/Modal.ts";
 import { SelectedProductCardView } from "./components/views/SelectedProductCardView.ts";
 import { Cart } from "./components/models/Cart.ts";
+import { BasketInHeaderView } from "./components/views/BasketInHeaderView.ts";
+import { BasketView } from "./components/views/BasketView.ts";
+import { ProductInBasketCardView } from "./components/views/ProductInBasketCardView.ts";
 
 // Инициализация EventEmitter для управления событиями
 const events = new EventEmitter();
@@ -25,6 +28,17 @@ const cart = new Cart();
 
 // Инициализация представлений
 const catalogView = new ProductCatalogView(document.body);
+
+const basketInHeader = new BasketInHeaderView(
+  ensureElement<HTMLElement>(".header"),
+  {
+    onClick: () => events.emit(Events.BASKET_OPEN),
+  }
+);
+
+const basketView = new BasketView(cloneTemplate<HTMLElement>("#basket"), {
+  onClick: () => {},
+});
 
 const modal = new Modal(ensureElement<HTMLElement>("#modal-container"));
 
@@ -48,7 +62,6 @@ events.on(Events.CATALOG_CHANGE, () => {
 
     const card = new ProductCardCatalogView(cardElement, {
       onClick: () => {
-        console.log(product.id);
         events.emit(Events.PRODUCT_SELECT, product);
       },
     });
@@ -75,15 +88,27 @@ events.on(Events.PRODUCT_SELECT, (product: IProduct) => {
     onClick: () => {
       if (cart.checkProductExistence(product.id)) {
         cart.removeProduct(product.id);
+        events.emit(Events.BASKET_CHANGE);
         events.emit(Events.PRODUCT_SELECT, product);
 
         return;
       }
 
       cart.addProduct(product);
+      events.emit(Events.BASKET_CHANGE);
       events.emit(Events.PRODUCT_SELECT, product);
     },
   });
+
+  let buttonText = "";
+
+  if (product.price === null) {
+    buttonText = "Недоступно";
+  } else if (!cart.checkProductExistence(product.id)) {
+    buttonText = "Купить";
+  } else {
+    buttonText = "Удалить из корзины";
+  }
 
   modal.render({
     content: previewCard.render({
@@ -93,9 +118,48 @@ events.on(Events.PRODUCT_SELECT, (product: IProduct) => {
       category: product.category,
       price: product.price,
       description: product.description,
-      buttonText: cart.checkProductExistence(product.id)
-        ? "Удалить из корзины"
-        : "Купить",
+      buttonText,
+    }),
+  });
+
+  modal.open();
+});
+
+// Обработчик изменения корзины
+events.on(Events.BASKET_CHANGE, () => {
+  const cartProducts = cart.getProducts();
+
+  basketInHeader.render({ counter: cartProducts.length });
+});
+
+// Обработчик открытия корзины
+events.on(Events.BASKET_OPEN, () => {
+  const cartProducts = cart.getProducts();
+  const totalPrice = cart.getAllProductsCost();
+
+  // Создаём карточки товаров для корзины
+  const basketItems = cartProducts.map((product, index) => {
+    const cardElement = cloneTemplate<HTMLElement>("#card-basket");
+
+    const card = new ProductInBasketCardView(cardElement, {
+      onClick: () => {
+        cart.removeProduct(product.id);
+        events.emit(Events.BASKET_CHANGE);
+        events.emit(Events.BASKET_OPEN);
+      },
+    });
+
+    return card.render({
+      title: product.title,
+      price: product.price,
+      index: index + 1,
+    });
+  });
+
+  modal.render({
+    content: basketView.render({
+      products: basketItems,
+      basketPrice: totalPrice,
     }),
   });
 
