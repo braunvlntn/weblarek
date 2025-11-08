@@ -197,3 +197,222 @@ Presenter - презентер содержит основную логику п
 Методы класса:
 `fetchProducts(): Promise<IProduct[]>` - получает список товаров;
 `postOrder(buyer: IBuyer, total: number, products: IProduct["id"][]): Promise<void>` - отправляет данные для оформления заказа.
+
+### Слой представления
+
+#### Класс ProductCardBaseView
+
+Является базовым классом для всех типов карточек товара. Наследуется от `Component<IProduct>`.
+
+Конструктор:
+`constructor(container: HTMLElement)` - принимает DOM-элемент контейнера карточки.
+
+Поля класса:
+`_title: HTMLElement` - элемент заголовка карточки;
+`_price: HTMLElement | null` - элемент цены товара.
+
+Методы класса:
+`set title(value: string): void` - устанавливает текст заголовка карточки;
+`set price(value: number | null): void` - устанавливает цену товара. Если значение `null`, отображается текст "Бесценно";
+`protected _getCategoryClass(category: string): string` - возвращает CSS-класс для категории товара на основе маппинга из `categoryMap`.
+
+#### Класс ProductCardCatalogView
+
+Реализует отображение карточки товара в каталоге. Наследуется от `ProductCardBaseView`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions?: IProductCardActions)` - принимает DOM-элемент контейнера карточки и опциональный объект с обработчиками событий.
+
+Поля класса:
+`_image: HTMLImageElement` - элемент изображения товара;
+`_category: HTMLElement` - элемент категории товара;
+`_button: HTMLButtonElement | null` - кнопка для взаимодействия с карточкой.
+
+Методы класса:
+`set image(value: string): void` - устанавливает URL изображения товара;
+`set category(value: keyof typeof categoryMap): void` - устанавливает категорию товара и соответствующий CSS-класс.
+
+#### Интерфейс IProductCardActions
+
+Описывает структуру обработчиков событий для карточки товара.
+
+Поля интерфейса:
+`onClick: (event: MouseEvent) => void` - обработчик клика по карточке товара.
+
+#### Класс ModalView
+
+Реализует отображение модального окна. Наследуется от `Component<IModalData>`.
+
+Конструктор:
+`constructor(container: HTMLElement)` - принимает DOM-элемент контейнера модального окна.
+
+Поля класса:
+`_closeButton: HTMLButtonElement` - кнопка закрытия модального окна;
+`_content: HTMLElement` - контейнер для содержимого модального окна.
+
+Методы класса:
+`set content(value: HTMLElement): void` - устанавливает содержимое модального окна;
+`open(): void` - открывает модальное окно;
+`close(): void` - закрывает модальное окно;
+`render(data: IModalData): HTMLElement` - отображает модальное окно с переданным содержимым.
+
+#### Интерфейс IModalData
+
+Описывает структуру данных для модального окна.
+
+Поля интерфейса:
+`content: HTMLElement` - HTML-элемент с содержимым для отображения в модальном окне.
+
+#### Класс ProductCatalogView
+
+Реализует отображение каталога товаров на странице. Наследуется от `Component<{ items: HTMLElement[] }>`.
+
+Конструктор:
+`constructor(container: HTMLElement)` - принимает DOM-элемент контейнера каталога.
+
+Поля класса:
+`_catalog: HTMLElement` - контейнер для отображения карточек товаров.
+
+Методы класса:
+`set items(items: HTMLElement[]): void` - устанавливает карточки товаров в каталог.
+
+#### Класс SelectedProductCardView
+
+Реализует отображение полной карточки товара с подробным описанием. Наследуется от `ProductCardBaseView`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions?: IProductCardActions)` - принимает DOM-элемент контейнера карточки и опциональный объект с обработчиками событий.
+
+Поля класса:
+`_image: HTMLImageElement` - элемент изображения товара;
+`_description: HTMLElement` - элемент описания товара;
+`_category: HTMLElement` - элемент категории товара;
+`_button: HTMLButtonElement | null` - кнопка для добавления товара в корзину.
+
+Методы класса:
+`set image(value: string): void` - устанавливает URL изображения товара;
+`set description(value: string): void` - устанавливает текст описания товара;
+`set category(value: keyof typeof categoryMap): void` - устанавливает категорию товара и соответствующий CSS-класс;
+`set buttonText(value: string): void` - устанавливает текст кнопки.
+
+#### Класс BasketInHeaderView
+
+Реализует отображение иконки корзины и счетчика товаров в шапке сайта. Наследуется от `Component<{ counter: number }>`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions: { onClick: () => void })` - принимает DOM-элемент контейнера и объект с обработчиком клика.
+
+Поля класса:
+`_button: HTMLButtonElement` - кнопка корзины;
+`_counter: HTMLElement` - элемент счетчика товаров.
+
+Методы класса:
+`set counter(value: number): void` - устанавливает количество товаров в корзине.
+
+#### Класс BasketView
+
+Реализует отображение содержимого корзины. Наследуется от `Component<{ products: HTMLElement[]; basketPrice: number }>`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions: { onClick: () => void })` - принимает DOM-элемент контейнера и объект с обработчиком клика на кнопку оформления заказа.
+
+Поля класса:
+`_list: HTMLElement` - список товаров в корзине;
+`_price: HTMLElement` - элемент общей стоимости товаров;
+`_button: HTMLButtonElement` - кнопка оформления заказа.
+
+Методы класса:
+`set products(products: HTMLElement[]): void` - устанавливает список товаров в корзине;
+`set basketPrice(price: number): void` - устанавливает общую стоимость товаров в корзине.
+
+#### Класс ProductInBasketCardView
+
+Реализует отображение карточки товара в корзине. Наследуется от `Component<{ title: string; price: number | null; index: number }>`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions: { onClick: () => void })` - принимает DOM-элемент контейнера и объект с обработчиком клика на кнопку удаления товара.
+
+Поля класса:
+`_index: HTMLElement` - элемент порядкового номера товара;
+`_title: HTMLElement` - элемент названия товара;
+`_price: HTMLElement` - элемент цены товара;
+`_button: HTMLButtonElement` - кнопка удаления товара из корзины.
+
+Методы класса:
+`set index(value: number): void` - устанавливает порядковый номер товара;
+`set title(value: string): void` - устанавливает название товара;
+`set price(value: number | null): void` - устанавливает цену товара.
+
+#### Класс FormView
+
+Базовый класс для всех форм приложения. Наследуется от `Component<{ errors: string[]; isComplete: boolean }>`.
+
+Конструктор:
+`constructor(container: HTMLElement)` - принимает DOM-элемент контейнера формы.
+
+Поля класса:
+`_form: HTMLFormElement` - элемент формы;
+`_submit: HTMLButtonElement` - кнопка отправки формы;
+`_errors: HTMLElement` - элемент для отображения ошибок валидации.
+
+Методы класса:
+`set errors(errors: string[]): void` - устанавливает список ошибок валидации;
+`set isComplete(value: boolean): void` - устанавливает доступность кнопки отправки формы.
+
+#### Класс OrderFormView
+
+Реализует отображение формы выбора способа оплаты и ввода адреса доставки. Наследуется от `FormView`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions: IOrderFormActions)` - принимает DOM-элемент контейнера формы и объект с обработчиками событий.
+
+Поля класса:
+`_buttonCard: HTMLButtonElement` - кнопка выбора оплаты онлайн;
+`_buttonCash: HTMLButtonElement` - кнопка выбора оплаты при получении;
+`_addressInput: HTMLInputElement` - поле ввода адреса доставки.
+
+Методы класса:
+`set payment(value: TPayment): void` - устанавливает выбранный способ оплаты и обновляет визуальное состояние кнопок.
+
+#### Интерфейс IOrderFormActions
+
+Описывает структуру обработчиков событий для формы заказа.
+
+Поля интерфейса:
+`onSubmit: () => void` - обработчик отправки формы;
+`setPayment: (payment: TPayment) => void` - обработчик выбора способа оплаты;
+`setAddress: (address: string) => void` - обработчик изменения адреса доставки.
+
+#### Класс ContactFormView
+
+Реализует отображение формы ввода контактных данных (email и телефон). Наследуется от `FormView`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions: IContactFormActions)` - принимает DOM-элемент контейнера формы и объект с обработчиками событий.
+
+Поля класса:
+`_emailInput: HTMLInputElement` - поле ввода email;
+`_phoneInput: HTMLInputElement` - поле ввода телефона.
+
+#### Интерфейс IContactFormActions
+
+Описывает структуру обработчиков событий для формы контактов.
+
+Поля интерфейса:
+`onSubmit: () => void` - обработчик отправки формы;
+`setEmail: (email: string) => void` - обработчик изменения email;
+`setPhone: (phone: string) => void` - обработчик изменения телефона.
+
+#### Класс OrderSuccessView
+
+Реализует отображение экрана успешного оформления заказа. Наследуется от `Component<{ total: number }>`.
+
+Конструктор:
+`constructor(container: HTMLElement, actions: { onClick: () => void })` - принимает DOM-элемент контейнера и объект с обработчиком клика на кнопку закрытия.
+
+Поля класса:
+`_description: HTMLElement` - элемент с описанием списанной суммы;
+`_button: HTMLButtonElement` - кнопка закрытия окна.
+
+Методы класса:
+`set total(value: number): void` - устанавливает общую стоимость заказа.
