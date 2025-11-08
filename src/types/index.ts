@@ -1,3 +1,5 @@
+import { categoryMap } from "../utils/constants.ts";
+
 export type ApiPostMethods = "POST" | "PUT" | "DELETE";
 
 export interface IApi {
@@ -5,18 +7,18 @@ export interface IApi {
   post<T extends object>(
     uri: string,
     data: object,
-    method?: ApiPostMethods
+    method?: ApiPostMethods,
   ): Promise<T>;
 }
 
-type TPayment = "" | "cash" | "card";
+export type TPayment = "" | "cash" | "card";
 
 export interface IProduct {
   id: string;
   description: string;
   image: string;
   title: string;
-  category: string;
+  category: keyof typeof categoryMap;
   price: number | null;
 }
 
@@ -32,7 +34,9 @@ export interface FetchProductsResponse {
   items: IProduct[];
 }
 
-export interface IOrderPayload extends IBuyer {
+export type PostOrderParams = IBuyer & {
   total: number;
   items: IProduct["id"][];
-}
+};
+
+export type PostOrderResponse = PostOrderParams;

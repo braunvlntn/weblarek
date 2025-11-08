@@ -28,9 +28,7 @@ export class SelectedProductCardView extends ProductCardBaseView {
 
   set category(value: keyof typeof categoryMap) {
     this._category.textContent = value;
-    this._category.className = `card__category ${this._getCategoryClass(
-      value
-    )}`;
+    this._category.className = `card__category ${this._getCategoryClass(value)}`;
   }
 
   set description(value: string) {

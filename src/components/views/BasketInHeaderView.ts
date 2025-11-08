@@ -14,12 +14,12 @@ export class BasketInHeaderView extends Component<IBasketInHeader> {
 
     this._counter = ensureElement<HTMLElement>(
       ".header__basket-counter",
-      container
+      container,
     );
 
     this._button = ensureElement<HTMLButtonElement>(
       ".header__basket",
-      container
+      container,
     );
 
     if (actions?.onClick) {

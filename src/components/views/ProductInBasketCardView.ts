@@ -17,7 +17,6 @@ export class ProductInBasketCardView extends ProductCardBaseView {
     this._button = ensureElement<HTMLButtonElement>(".card__button", container);
 
     if (actions?.onClick) {
-      console.log("click");
       this._button.addEventListener("click", actions.onClick);
     }
   }

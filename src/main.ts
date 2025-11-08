@@ -14,6 +14,10 @@ import { Cart } from "./components/models/Cart.ts";
 import { BasketInHeaderView } from "./components/views/BasketInHeaderView.ts";
 import { BasketView } from "./components/views/BasketView.ts";
 import { ProductInBasketCardView } from "./components/views/ProductInBasketCardView.ts";
+import { OrderFormView } from "./components/views/OrderFormView.ts";
+import { Buyer } from "./components/models/Buyer.ts";
+import { ContactsFormView } from "./components/views/ContactFormView.ts";
+import { OrderSuccessView } from "./components/views/SuccessView.ts";
 
 // Инициализация EventEmitter для управления событиями
 const events = new EventEmitter();
@@ -25,6 +29,7 @@ const dataFetcher = new DataFetcher(api);
 // Инициализация моделей
 const productCatalog = new ProductCatalog();
 const cart = new Cart();
+const buyer = new Buyer();
 
 // Инициализация представлений
 const catalogView = new ProductCatalogView(document.body);
@@ -33,11 +38,11 @@ const basketInHeader = new BasketInHeaderView(
   ensureElement<HTMLElement>(".header"),
   {
     onClick: () => events.emit(Events.BASKET_OPEN),
-  }
+  },
 );
 
 const basketView = new BasketView(cloneTemplate<HTMLElement>("#basket"), {
-  onClick: () => {},
+  onClick: () => events.emit(Events.ORDER_START),
 });
 
 const modal = new Modal(ensureElement<HTMLElement>("#modal-container"));
@@ -164,4 +169,131 @@ events.on(Events.BASKET_OPEN, () => {
   });
 
   modal.open();
+});
+
+// Обработчик начала оформления заказа (первый шаг)
+events.on(Events.ORDER_START, () => {
+  const errors = {
+    address: buyer.validateAddress(),
+    payment: buyer.validatePayment(),
+  };
+
+  const orderFormElement = cloneTemplate<HTMLElement>("#order");
+
+  const orderForm = new OrderFormView(orderFormElement, {
+    onSubmit: () => events.emit(Events.ORDER_SUBMIT),
+    setPayment: (payment) => {
+      buyer.setPayment(payment);
+      errors.payment = buyer.validatePayment();
+
+      modal.render({
+        content: orderForm.render({
+          payment: buyer.getPayment(),
+          errors: Object.values(errors).filter((error) => error !== ""),
+          isComplete:
+            Object.values(errors).filter((error) => error !== "").length === 0,
+        }),
+      });
+    },
+    setAddress: (address) => {
+      buyer.setAddress(address);
+      errors.address = buyer.validateAddress();
+
+      modal.render({
+        content: orderForm.render({
+          payment: buyer.getPayment(),
+          errors: Object.values(errors).filter((error) => error !== ""),
+          isComplete:
+            Object.values(errors).filter((error) => error !== "").length === 0,
+        }),
+      });
+    },
+  });
+
+  modal.render({
+    content: orderForm.render({ errors: [], isComplete: false }),
+  });
+});
+
+// Обработчик заполнения контактов (второй шаг)
+events.on(Events.ORDER_SUBMIT, () => {
+  const errors = {
+    email: buyer.validateEmail(),
+    phone: buyer.validatePhone(),
+  };
+
+  const contactsFormElement = cloneTemplate<HTMLElement>("#contacts");
+
+  const contactsForm = new ContactsFormView(contactsFormElement, {
+    onSubmit: () => events.emit(Events.CONTACTS_SUBMIT),
+    setEmail: (email) => {
+      buyer.setEmail(email);
+      errors.email = buyer.validateEmail();
+
+      modal.render({
+        content: contactsForm.render({
+          errors: Object.values(errors).filter((error) => error !== ""),
+          isComplete:
+            Object.values(errors).filter((error) => error !== "").length === 0,
+        }),
+      });
+    },
+    setPhone: (phone) => {
+      buyer.setPhone(phone);
+      errors.phone = buyer.validatePhone();
+
+      modal.render({
+        content: contactsForm.render({
+          errors: Object.values(errors).filter((error) => error !== ""),
+          isComplete:
+            Object.values(errors).filter((error) => error !== "").length === 0,
+        }),
+      });
+    },
+  });
+
+  modal.render({
+    content: contactsForm.render({ isComplete: false, errors: [] }),
+  });
+});
+
+// Обработка отправки заказа
+events.on(Events.CONTACTS_SUBMIT, () => {
+  const cartProducts = cart.getProducts();
+  const totalPrice = cart.getAllProductsCost();
+
+  // Отправляем заказ на сервер
+  dataFetcher
+    .postOrder(
+      {
+        email: buyer.getEmail(),
+        phone: buyer.getPhone(),
+        address: buyer.getAddress(),
+        payment: buyer.getPayment(),
+      },
+      totalPrice,
+      cartProducts.map((product) => product.id),
+    )
+    .then((result) => {
+      // Очищаем корзину и данные покупателя
+      cart.clearProducts();
+      buyer.clearBuyersData();
+      events.emit(Events.BASKET_CHANGE);
+
+      // Показываем сообщение об успешной оплате
+      const successElement = cloneTemplate<HTMLElement>("#success");
+
+      const successView = new OrderSuccessView(successElement, {
+        onClick: () => {
+          modal.close();
+        },
+      });
+
+      modal.render({
+        content: successView.render({ total: result.total }),
+      });
+    })
+    .catch((error) => {
+      console.error("Ошибка при оформлении заказа:", error);
+    });
 });

@@ -14,7 +14,7 @@ export class Modal extends Component<IModalData> {
 
     this._closeButton = ensureElement<HTMLButtonElement>(
       ".modal__close",
-      container
+      container,
     );
 
     this._content = ensureElement<HTMLElement>(".modal__content", container);

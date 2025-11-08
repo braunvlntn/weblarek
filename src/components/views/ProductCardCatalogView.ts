@@ -2,7 +2,7 @@ import { ensureElement } from "../../utils/utils.ts";
 import { ProductCardBaseView } from "./ProductCardBaseView.ts";
 import { categoryMap } from "../../utils/constants.ts";
 
-interface IProductCardActions {
+export interface IProductCardActions {
   onClick: (event: MouseEvent) => void;
 }
 
@@ -18,7 +18,7 @@ export class ProductCardCatalogView extends ProductCardBaseView {
 
     this._category = ensureElement<HTMLButtonElement>(
       ".card__category",
-      container
+      container,
     );
 
     this._button = container.classList.contains("gallery__item")
@@ -38,8 +38,6 @@ export class ProductCardCatalogView extends ProductCardBaseView {
 
   set category(value: keyof typeof categoryMap) {
     this._category.textContent = value;
-    this._category.className = `card__category ${this._getCategoryClass(
-      value
-    )}`;
+    this._category.className = `card__category ${this._getCategoryClass(value)}`;
   }
 }

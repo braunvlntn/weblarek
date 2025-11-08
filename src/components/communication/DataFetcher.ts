@@ -4,6 +4,7 @@ import {
   IBuyer,
   IProduct,
   PostOrderParams,
+  PostOrderResponse,
 } from "../../types";
 
 export class DataFetcher {
@@ -18,7 +19,7 @@ export class DataFetcher {
   }
 
   postOrder(buyer: IBuyer, total: number, items: IProduct["id"][]) {
-    return this.api.post("/order", {
+    return this.api.post<PostOrderResponse>("/order", {
       ...buyer,
       total,
       items,

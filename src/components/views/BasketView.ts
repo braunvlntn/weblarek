@@ -20,7 +20,7 @@ export class BasketView extends Component<IBasket> {
 
     this._basketButton = ensureElement<HTMLButtonElement>(
       ".basket__button",
-      container
+      container,
     );
 
     if (actions?.onClick) {
