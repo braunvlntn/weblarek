@@ -23,4 +23,7 @@ export enum Events {
   PRODUCT_SELECT = "product:select",
   BASKET_CHANGE = "basket:change",
   BASKET_OPEN = "basket:open",
+  ORDER_START = "order:start",
+  ORDER_SUBMIT = "order:submit",
+  CONTACTS_SUBMIT = "contacts:submit",
 }
