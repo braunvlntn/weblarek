@@ -1,5 +1,12 @@
 import { IBuyer } from "../../types";
 
+const errorsMap = {
+  phone: "Укажите номер телефона",
+  email: "Укажите адрес электронной почты",
+  address: "Укажите адрес доставки",
+  payment: "Не выбран вид оплаты",
+};
+
 export class Buyer implements IBuyer {
   payment: IBuyer["payment"] = "";
   email: IBuyer["email"] = "";
@@ -49,21 +56,53 @@ export class Buyer implements IBuyer {
     const result: Partial<Record<keyof IBuyer, string>> = {};
 
     if (!this.getPhone()) {
-      result.phone = "Укажите номер телефона";
+      result.phone = errorsMap.phone;
     }
 
     if (!this.getAddress()) {
-      result.address = "Укажите адрес доставки";
+      result.address = errorsMap.address;
     }
 
     if (!this.getEmail()) {
-      result.email = "Укажите адрес электронной почты";
+      result.email = errorsMap.email;
     }
 
     if (!this.getPayment()) {
-      result.payment = "Не выбран вид оплаты";
+      result.payment = errorsMap.payment;
     }
 
     return result;
+  }
+
+  validatePhone() {
+    if (!this.getPhone()) {
+      return errorsMap.phone;
+    }
+
+    return "";
+  }
+
+  validateEmail() {
+    if (!this.getEmail()) {
+      return errorsMap.email;
+    }
+
+    return "";
+  }
+
+  validateAddress() {
+    if (!this.getAddress()) {
+      return errorsMap.address;
+    }
+
+    return "";
+  }
+
+  validatePayment() {
+    if (!this.getPayment()) {
+      return errorsMap.payment;
+    }
+
+    return "";
   }
 }
