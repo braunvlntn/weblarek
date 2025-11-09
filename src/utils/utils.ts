@@ -136,3 +136,10 @@ export function createElement<
     }
     return element;
 }
+
+/**
+ * Подготавливает объект ошибок к передаче в компонент представления.
+ */
+export function prepareErrors(errorsObject: Record<string, string>): string[] {
+    return Object.values(errorsObject).filter((error) => error !== "");
+}

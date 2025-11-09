@@ -6,7 +6,7 @@ import { ProductCatalog } from "./components/models/ProductCatalog";
 import { DataFetcher } from "./components/communication/DataFetcher";
 import { ProductCardCatalogView } from "./components/views/ProductCardCatalogView.ts";
 import { ProductCatalogView } from "./components/views/ProductCatalogView";
-import { cloneTemplate, ensureElement } from "./utils/utils";
+import { cloneTemplate, ensureElement, prepareErrors } from "./utils/utils";
 import { IProduct } from "./types";
 import { Modal } from "./components/views/Modal.ts";
 import { SelectedProductCardView } from "./components/views/SelectedProductCardView.ts";
@@ -82,10 +82,8 @@ const orderForm = new OrderFormView(orderFormElement, {
     modal.render({
       content: orderForm.render({
         payment: buyer.getPayment(),
-        errors: Object.values(orderFormErrors).filter((error) => error !== ""),
-        isComplete:
-          Object.values(orderFormErrors).filter((error) => error !== "")
-            .length === 0,
+        errors: prepareErrors(orderFormErrors),
+        isComplete: prepareErrors(orderFormErrors).length === 0,
       }),
     });
   },
@@ -96,10 +94,8 @@ const orderForm = new OrderFormView(orderFormElement, {
     modal.render({
       content: orderForm.render({
         payment: buyer.getPayment(),
-        errors: Object.values(orderFormErrors).filter((error) => error !== ""),
-        isComplete:
-          Object.values(orderFormErrors).filter((error) => error !== "")
-            .length === 0,
+        errors: prepareErrors(orderFormErrors),
+        isComplete: prepareErrors(orderFormErrors).length === 0,
       }),
     });
   },
@@ -120,12 +116,8 @@ const contactsForm = new ContactsFormView(contactsFormElement, {
 
     modal.render({
       content: contactsForm.render({
-        errors: Object.values(contactsFormErrors).filter(
-          (error) => error !== "",
-        ),
-        isComplete:
-          Object.values(contactsFormErrors).filter((error) => error !== "")
-            .length === 0,
+        errors: prepareErrors(contactsFormErrors),
+        isComplete: prepareErrors(contactsFormErrors).length === 0,
       }),
     });
   },
@@ -135,12 +127,8 @@ const contactsForm = new ContactsFormView(contactsFormElement, {
 
     modal.render({
       content: contactsForm.render({
-        errors: Object.values(contactsFormErrors).filter(
-          (error) => error !== "",
-        ),
-        isComplete:
-          Object.values(contactsFormErrors).filter((error) => error !== "")
-            .length === 0,
+        errors: prepareErrors(contactsFormErrors),
+        isComplete: prepareErrors(contactsFormErrors).length === 0,
       }),
     });
   },
@@ -253,9 +241,7 @@ events.on(Events.ORDER_START, () => {
   modal.render({
     content: orderForm.render({
       errors: [],
-      isComplete:
-        Object.values(orderFormErrors).filter((error) => error !== "")
-          .length === 0,
+      isComplete: prepareErrors(orderFormErrors).length === 0,
     }),
   });
 });
@@ -265,9 +251,7 @@ events.on(Events.ORDER_SUBMIT, () => {
   modal.render({
     content: contactsForm.render({
       errors: [],
-      isComplete:
-        Object.values(contactsFormErrors).filter((error) => error !== "")
-          .length === 0,
+      isComplete: prepareErrors(contactsFormErrors).length === 0,
     }),
   });
 });
